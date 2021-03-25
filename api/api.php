@@ -9,12 +9,13 @@
 		switch($_GET['apicall']){
 			
 			case 'register':
-				if(isTheseParametersAvailable(array('uname','ucontact','uemail','udob','urole'))){
+				if(isTheseParametersAvailable(array('uname','ucontact','uemail','udob','urole','upass'))){
 					$uname = $_POST['uname']; 
 					$ucontact = $_POST['ucontact']; 
 					$uemail = $_POST['uemail'];
                     $udob = $_POST['udob'];
 					$urole = $_POST['urole'];
+					$upass = $_POST['upass'];
 					$stmt = $conn->prepare("SELECT uid FROM users WHERE name = ? OR contact = ?");
 					$stmt->bind_param("ss", $uname,$ucontact);
 					$stmt->execute();
@@ -25,14 +26,13 @@
 						$response['message'] = 'User already registered or change the number.';
 						$stmt->close();
 					}else{
-						$stmt = $conn->prepare("INSERT INTO users (`name`, `contact`, `email`, `dob`, `urole`) VALUES (?, ?, ?, ?, ?)");
-						$stmt->bind_param("sssss", $uname, $ucontact, $uemail, $udob, $urole);
- 
+						$stmt = $conn->prepare("INSERT INTO users (`name`, `contact`, `email`, `urole`, `password`) VALUES (?, ?, ?, ?, ?)");
+						$stmt->bind_param("sssss", $uname, $ucontact, $uemail, $urole, $upass);
 						if($stmt->execute()){
-							$stmt = $conn->prepare("SELECT `uid`, `name`, `contact`, `email`, `dob`, `urole` FROM users WHERE name = ?"); 
-							$stmt->bind_param("s",$uname);
+							$stmt = $conn->prepare("SELECT `uid`, `name`, `contact`, `email`, `urole`, `password` FROM users WHERE name = ? and email = ?"); 
+							$stmt->bind_param("ss",$uname,$email);
 							$stmt->execute();
-							$stmt->bind_result($uid, $name, $contact, $email, $dob, $urole);
+							$stmt->bind_result($uid, $name, $contact, $email, $urole);
 							$stmt->fetch();
 							
 							$user = array(
@@ -40,7 +40,6 @@
 								'name'=>$name, 
 								'contact'=>$contact,
 								'email'=>$email,
-                                'dob'=>$dob,
 								'urole'=>$urole,
 							);
 							
