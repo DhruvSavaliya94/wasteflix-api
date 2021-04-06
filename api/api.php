@@ -66,25 +66,106 @@
                     $stmt->execute();
                     $stmt->bind_result($uid,$name,$contact,$email);
                     $stmt->fetch();
+                    if($uid!=null){
+						$user = array(
+							'uid'=>$uid,
+							'user_name'=>$name,
+							'user_contact'=>$contact,
+							'user_email'=>$email,						
+						);
+						
+						$stmt->close();
+						
+						$response['error'] = false; 
+						$response['message'] = 'User login successfully'; 
+						$response['user'] = $user; 
+					}
+					else{
+						$stmt->close();
+						
+						$response['error'] = true; 
+						$response['message'] = 'Invalid User'; 
+					}
                     
-                    $user = array(
-                        'uid'=>$uid,
-                        'user_name'=>$name,
-                        'user_email'=>$contact,
-                        'user_contact'=>$email,						
-                    );
-                    
-                    $stmt->close();
-                    
-                    $response['error'] = false; 
-                    $response['message'] = 'User login successfully'; 
-                    $response['user'] = $user; 
                 }else{
 					$response['error'] = true; 
 					$response['message'] = 'required parameters are not available'; 
                 }
             break;
-						
+			case 'getAllCategory':
+				$stmt = $conn->prepare("SELECT * FROM `category`"); 
+				$stmt->execute();
+				$stmt->bind_result($cid, $name, $price);
+				$cat = array();
+				while($stmt->fetch()){
+					$tmp = array(
+						'cid'=>$cid, 
+						'name'=>$name, 
+						'price'=>$price,
+					);
+					array_push($cat,$tmp);
+				}
+							
+				$stmt->close();
+				$response['AllCategory'] = $cat;
+			break;
+
+			case 'addReq':
+				
+				if(isTheseParametersAvailable(array('wuid','wdisc','wcategory','wcity','wdate','wqnt','status'))){
+					$wuid = $_POST['wuid']; 
+					$wdisc = $_POST['wdisc']; 
+					$wcategory = $_POST['wcategory'];
+					$wcity = $_POST['wcity'];
+					$wdate = $_POST['wdate'];
+					$wqnt = $_POST['wqnt'];
+					$status = $_POST['status'];
+
+					$stmt = $conn->prepare("INSERT INTO request (`uid`, `description`, `category`, `city`, `date`, `qnty`, `status`) VALUES (?, ?, ?, ?, ?, ?, ?)");
+						$stmt->bind_param("sssssss", $wuid, $wdisc, $wcategory, $wcity, $wdate, $wqnt, $status);
+						if($stmt->execute()){
+														
+							$stmt->close();
+							
+							$response['error'] = false; 
+							$response['message'] = 'Pickup request successfully'; 
+						}
+					
+				}else{
+					$response['error'] = true; 
+					$response['message'] = 'required parameters are not available'; 
+				}
+			break;
+			case 'getRequest':
+				$uid=$_GET['uid'];
+				$stmt = $conn->prepare("SELECT `rid`, `uid`, `description`, c.`name`, `city`, `date`, `qnty`, `status` FROM request as r,category as c WHERE r.category=c.cid and r.uid=".$uid); 
+				$stmt->execute();
+				$stmt->bind_result($rid, $uid, $description, $name,$city, $date,$qnty,$status);
+				$pro = array();
+				while($stmt->fetch()){
+					$tmp = array(
+						'rid'=>$rid, 
+						'uid'=>$uid, 
+						'description'=>$description,
+						'name'=>$name,
+						'city'=>$city,
+						'date'=>$date,
+						'qnty'=>$qnty,
+						'status'=>$status,
+
+					);
+					array_push($pro,$tmp);
+				}
+				if($pro==null){
+					$response['Requests'] = $pro;
+					$response['error'] = true; 
+					$response['message'] = 'No item found';
+				}else{
+					$stmt->close();
+					$response['Requests'] = $pro;
+				}			
+				
+			break;	
 			default: 
 				$response['error'] = true; 
 				$response['message'] = 'Invalid Operation Called';
