@@ -61,17 +61,18 @@
 				if(isTheseParametersAvailable(array('uemail','upassword'))){
                     $uemail = $_POST['uemail']; 
                     $upassword = $_POST['upassword']; 
-                    $stmt = $conn->prepare("SELECT uid,name,contact,email FROM users WHERE email = ? AND password = ?");
+                    $stmt = $conn->prepare("SELECT uid,name,contact,email,urole FROM users WHERE email = ? AND password = ?");
                     $stmt->bind_param("ss",$uemail,$upassword);
                     $stmt->execute();
-                    $stmt->bind_result($uid,$name,$contact,$email);
+                    $stmt->bind_result($uid,$name,$contact,$email,$urole);
                     $stmt->fetch();
                     if($uid!=null){
 						$user = array(
 							'uid'=>$uid,
 							'user_name'=>$name,
 							'user_contact'=>$contact,
-							'user_email'=>$email,						
+							'user_email'=>$email,
+							'user_role' =>$urole						
 						);
 						
 						$stmt->close();
@@ -165,7 +166,36 @@
 					$response['Requests'] = $pro;
 				}			
 				
-			break;	
+			break;
+			case 'getAllRequest':
+				$stmt = $conn->prepare("SELECT `rid`, `uid`, `description`, c.`name`, `city`, `date`, `qnty`, `status` FROM request as r,category as c WHERE r.category=c.cid"); 
+				$stmt->execute();
+				$stmt->bind_result($rid, $uid, $description, $name,$city, $date,$qnty,$status);
+				$pro = array();
+				while($stmt->fetch()){
+					$tmp = array(
+						'rid'=>$rid, 
+						'uid'=>$uid, 
+						'description'=>$description,
+						'name'=>$name,
+						'city'=>$city,
+						'date'=>$date,
+						'qnty'=>$qnty,
+						'status'=>$status,
+
+					);
+					array_push($pro,$tmp);
+				}
+				if($pro==null){
+					$response['Requests'] = $pro;
+					$response['error'] = true; 
+					$response['message'] = 'No item found';
+				}else{
+					$stmt->close();
+					$response['Requests'] = $pro;
+				}			
+				
+			break;		
 			default: 
 				$response['error'] = true; 
 				$response['message'] = 'Invalid Operation Called';

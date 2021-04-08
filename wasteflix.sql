@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 06, 2021 at 06:41 PM
+-- Generation Time: Apr 08, 2021 at 05:58 PM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -67,7 +67,23 @@ CREATE TABLE `request` (
 --
 
 INSERT INTO `request` (`rid`, `uid`, `description`, `category`, `city`, `date`, `qnty`, `status`) VALUES
-(1, 2, 'Dis', 4, 'Savarkundla', '2020-07-20', 1, '0');
+(1, 1, 'Thumpsup bottle', 4, 'Surat', '2020-07-20', 10, 'Submitted');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `rewards`
+--
+
+CREATE TABLE `rewards` (
+  `reid` int(11) NOT NULL,
+  `rid` int(11) NOT NULL,
+  `uid` int(11) NOT NULL,
+  `name` text NOT NULL,
+  `partner` varchar(20) NOT NULL,
+  `vouc_code` varchar(20) NOT NULL,
+  `offer` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -89,16 +105,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`uid`, `name`, `contact`, `email`, `urole`, `password`) VALUES
-(1, 'Dhruv', '9428870602', 'd@gmail.com', 0, '123456'),
-(2, 'Dip', '9428870603', 'dip@gmail.com', 0, '123456'),
-(3, 'Dipak', '9428870604', 'dipak@gmail.com', 0, '123456'),
-(4, 'Dhruv', '9428870606', 'dh@gmail.com', 0, '12345'),
-(5, 'Dhruv', '9428870608', 'dhp@gmail.com', 0, '12345'),
-(6, 'Dhruv', '9428870640', 'dhkp@gmail.com', 0, '12345'),
-(7, 'Dhruv', '9428870650', 'dhfkp@gmail.com', 0, '12345'),
-(8, 'dipak', '9876543258', 'dipi@gmail.com', 0, '123456'),
-(9, 'hk', '9876543255', 'hk@gmail.com', 0, '123456'),
-(10, 'HKing', '8523698523', 'k@gmail.com', 0, '987654');
+(1, 'Dhruv', '9876543211', 'dhruv@gmail.com', 0, '123456'),
+(2, 'Dip', '8974569852', 'dip@gmail.com', 1, '123456');
 
 --
 -- Indexes for dumped tables
@@ -115,7 +123,16 @@ ALTER TABLE `category`
 --
 ALTER TABLE `request`
   ADD PRIMARY KEY (`rid`),
-  ADD KEY `uid` (`uid`);
+  ADD KEY `uid` (`uid`),
+  ADD KEY `request_ibfk_2` (`category`);
+
+--
+-- Indexes for table `rewards`
+--
+ALTER TABLE `rewards`
+  ADD PRIMARY KEY (`reid`),
+  ADD KEY `rid_intigrity` (`rid`),
+  ADD KEY `uid_intigrity` (`uid`);
 
 --
 -- Indexes for table `users`
@@ -140,10 +157,16 @@ ALTER TABLE `request`
   MODIFY `rid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `rewards`
+--
+ALTER TABLE `rewards`
+  MODIFY `reid` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
@@ -153,7 +176,15 @@ ALTER TABLE `users`
 -- Constraints for table `request`
 --
 ALTER TABLE `request`
-  ADD CONSTRAINT `request_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `users` (`uid`);
+  ADD CONSTRAINT `request_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `users` (`uid`),
+  ADD CONSTRAINT `request_ibfk_2` FOREIGN KEY (`category`) REFERENCES `category` (`cid`);
+
+--
+-- Constraints for table `rewards`
+--
+ALTER TABLE `rewards`
+  ADD CONSTRAINT `rid_intigrity` FOREIGN KEY (`rid`) REFERENCES `request` (`rid`),
+  ADD CONSTRAINT `uid_intigrity` FOREIGN KEY (`uid`) REFERENCES `users` (`uid`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
