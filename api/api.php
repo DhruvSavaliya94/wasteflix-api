@@ -195,7 +195,20 @@
 					$response['Requests'] = $pro;
 				}			
 				
-			break;		
+			break;
+			case 'updateStatus':
+					$rid = $_GET['rid'];
+					$status = $_GET['status'];
+
+					$stmt = $conn->prepare("UPDATE `request` SET `status`=? WHERE `rid`=?");
+					$stmt->bind_param("ss",$status,$rid);
+					if($stmt->execute()){													
+						$stmt->close();						
+						$response['error'] = false; 
+						$response['message'] = 'Change status successfully'; 
+					}					
+			break;
+
 			default: 
 				$response['error'] = true; 
 				$response['message'] = 'Invalid Operation Called';
