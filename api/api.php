@@ -139,7 +139,36 @@
 			break;
 			case 'getRequest':
 				$uid=$_GET['uid'];
-				$stmt = $conn->prepare("SELECT `rid`, `uid`, `description`, c.`name`, `city`, `date`, `qnty`, `status` FROM request as r,category as c WHERE r.category=c.cid and r.uid=".$uid); 
+				$stmt = $conn->prepare("SELECT `rid`, `uid`, `description`, c.`name`, `city`, `date`, `qnty`, `status` FROM request as r,category as c WHERE r.category=c.cid and r.uid=".$uid." and r.status='Submitted.'"); 
+				$stmt->execute();
+				$stmt->bind_result($rid, $uid, $description, $name,$city, $date,$qnty,$status);
+				$pro = array();
+				while($stmt->fetch()){
+					$tmp = array(
+						'rid'=>$rid, 
+						'uid'=>$uid, 
+						'description'=>$description,
+						'name'=>$name,
+						'city'=>$city,
+						'date'=>$date,
+						'qnty'=>$qnty,
+						'status'=>$status,
+
+					);
+					array_push($pro,$tmp);
+				}
+				if($pro==null){
+					$response['Requests'] = $pro;
+					$response['error'] = true; 
+					$response['message'] = 'No item found';
+				}else{
+					$stmt->close();
+					$response['Requests'] = $pro;
+				}			
+				
+			break;
+			case 'getAllSRequest':
+				$stmt = $conn->prepare("SELECT `rid`, `uid`, `description`, c.`name`, `city`, `date`, `qnty`, `status` FROM request as r,category as c WHERE r.category=c.cid and r.status='Submitted.'"); 
 				$stmt->execute();
 				$stmt->bind_result($rid, $uid, $description, $name,$city, $date,$qnty,$status);
 				$pro = array();
@@ -202,11 +231,136 @@
 
 					$stmt = $conn->prepare("UPDATE `request` SET `status`=? WHERE `rid`=?");
 					$stmt->bind_param("ss",$status,$rid);
-					if($stmt->execute()){													
+					if($stmt->execute()){
+						$stmt = $conn->prepare("SELECT re.rid,re.uid,c.price,re.qnty from request as re,category as c WHERE c.cid=re.category AND re.rid=".$rid);
+						$stmt->execute();
+						$stmt->bind_result($rid, $uid, $price, $qnty);
+						$pro = array();
+						while($stmt->fetch()){
+							$tmp = array(
+								'rid'=>$rid, 
+								'uid'=>$uid, 
+								'price'=>$price,
+								'qnty'=>$qnty		
+							);
+							array_push($pro,$tmp);
+						}
 						$stmt->close();						
 						$response['error'] = false; 
-						$response['message'] = 'Change status successfully'; 
+						$response['message'] = 'Change status successfully';
+						$response['requestId']=$rid;
+						$response['requestDetails']=$pro; 
 					}					
+			break;
+
+			case 'creditRewards':
+
+				if(isTheseParametersAvailable(array('rid','uid','name','partner','vouc_code','offer'))){
+					$rid = $_POST['rid']; 
+					$uid = $_POST['uid']; 
+					$name = $_POST['name'];
+					$partner = $_POST['partner'];
+					$vouc_code = $_POST['vouc_code'];
+					$offer = $_POST['offer'];
+
+					$stmt = $conn->prepare("INSERT INTO `rewards`(`rid`, `uid`, `name`, `partner`, `vouc_code`, `offer`) VALUES (?,?,?,?,?,?)");
+					$stmt->bind_param("ssssss", $rid,$uid,$name,$partner,$vouc_code,$offer);
+					if($stmt->execute()){
+						$stmt->close();					
+						$response['error'] = false; 
+						$response['message'] = 'Rewards Credited'; 
+					}
+										
+				}else{
+					$response['error'] = true; 
+					$response['message'] = 'required parameters are not available.'; 
+				}
+			break;
+			case 'getRewards':
+				$uid=$_GET['uid'];
+				$stmt = $conn->prepare("SELECT re.`reid`, re.`rid`, us.`name`, re.`name`, re.`partner`, re.`vouc_code`, re.`offer` FROM `rewards` as re,`users` as us WHERE re.uid=us.uid"); 
+				$stmt->execute();
+				$stmt->bind_result($reid, $rid, $uname, $rname, $partner, $vouc_code, $offer);
+				$pro = array();
+				while($stmt->fetch()){
+					$tmp = array(
+						'reid'=>$reid, 
+						'rid'=>$rid, 
+						'uname'=>$uname,
+						'rname'=>$rname,
+						'partner'=>$partner,
+						'vouc_code'=>$vouc_code,
+						'offer'=>$offer,
+					);
+					array_push($pro,$tmp);
+				}
+				if($pro==null){
+					$response['Requests'] = $pro;
+					$response['error'] = true; 
+					$response['message'] = 'No item found';
+				}else{
+					$stmt->close();
+					$response['Requests'] = $pro;
+				}			
+				
+			break;
+
+			case 'getAllRewards':
+				$stmt = $conn->prepare("SELECT re.`reid`, re.`rid`, us.`name`, re.`name`, re.`partner`, re.`vouc_code`, re.`offer` FROM `rewards` as re,`users` as us WHERE re.uid=us.uid"); 
+				$stmt->execute();
+				$stmt->bind_result($reid, $rid, $uname, $rname, $partner, $vouc_code, $offer);
+				$pro = array();
+				while($stmt->fetch()){
+					$tmp = array(
+						'reid'=>$reid, 
+						'rid'=>$rid, 
+						'uname'=>$uname,
+						'rname'=>$rname,
+						'partner'=>$partner,
+						'vouc_code'=>$vouc_code,
+						'offer'=>$offer,
+					);
+					array_push($pro,$tmp);
+				}
+				if($pro==null){
+					$response['Requests'] = $pro;
+					$response['error'] = true; 
+					$response['message'] = 'No item found';
+				}else{
+					$stmt->close();
+					$response['Requests'] = $pro;
+				}		
+				
+			break;		
+			case 'getRequestHistory':
+				$uid=$_GET['uid'];
+				$stmt = $conn->prepare("SELECT `rid`, `uid`, `description`, c.`name`, `city`, `date`, `qnty`, `status` FROM request as r,category as c WHERE r.category=c.cid and r.uid=".$uid." and r.status!='Submitted.'"); 
+				$stmt->execute();
+				$stmt->bind_result($rid, $uid, $description, $name,$city, $date,$qnty,$status);
+				$pro = array();
+				while($stmt->fetch()){
+					$tmp = array(
+						'rid'=>$rid, 
+						'uid'=>$uid, 
+						'description'=>$description,
+						'name'=>$name,
+						'city'=>$city,
+						'date'=>$date,
+						'qnty'=>$qnty,
+						'status'=>$status,
+
+					);
+					array_push($pro,$tmp);
+				}
+				if($pro==null){
+					$response['Requests'] = $pro;
+					$response['error'] = true; 
+					$response['message'] = 'No item found';
+				}else{
+					$stmt->close();
+					$response['Requests'] = $pro;
+				}			
+				
 			break;
 
 			default: 
