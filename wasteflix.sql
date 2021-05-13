@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 08, 2021 at 05:58 PM
+-- Generation Time: May 13, 2021 at 05:38 AM
 -- Server version: 10.4.18-MariaDB
 -- PHP Version: 8.0.3
 
@@ -67,7 +67,14 @@ CREATE TABLE `request` (
 --
 
 INSERT INTO `request` (`rid`, `uid`, `description`, `category`, `city`, `date`, `qnty`, `status`) VALUES
-(1, 1, 'Thumpsup bottle', 4, 'Surat', '2020-07-20', 10, 'Submitted');
+(1, 1, 'Thumpsup bottle', 4, 'Surat', '2020-07-20', 10, 'Completed.'),
+(2, 1, 'News Paper', 5, 'Surat', '2020-07-20', 10, 'Rejected.'),
+(3, 1, 'Coke', 4, 'Surat', '2020-07-20', 10, 'Rejected.'),
+(4, 1, 'Kinly', 3, 'SK', '2020-07-20', 10, 'Completed.'),
+(5, 1, 'Coca Cola', 4, 'Surat', '2020-07-20', 10, 'Completed.'),
+(6, 1, 'Kinly club soda', 3, 'Surat', '2020-07-20', 15, 'Completed.'),
+(7, 1, 'Book', 5, 'Surat', '2021-05-07', 10, 'Completed.'),
+(8, 1, 'Coca cola', 3, 'Surat', '2021-05-07', 2, 'Rejected.');
 
 -- --------------------------------------------------------
 
@@ -79,11 +86,22 @@ CREATE TABLE `rewards` (
   `reid` int(11) NOT NULL,
   `rid` int(11) NOT NULL,
   `uid` int(11) NOT NULL,
-  `name` text NOT NULL,
+  `name` varchar(30) NOT NULL,
   `partner` varchar(20) NOT NULL,
   `vouc_code` varchar(20) NOT NULL,
   `offer` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `rewards`
+--
+
+INSERT INTO `rewards` (`reid`, `rid`, `uid`, `name`, `partner`, `vouc_code`, `offer`) VALUES
+(1, 1, 1, 'Cashback Offer', 'Amazon', 'GET100', 'Recharge Cashback'),
+(2, 4, 1, 'Cashback Offer', 'Amazon', 'GET80', 'Recharge Cashback'),
+(3, 5, 1, 'Cashback Offer', 'Amazon', 'GET100', 'Recharge Cashback'),
+(4, 6, 1, 'Cashback Offer', 'Amazon', 'GET120', 'Recharge Cashback'),
+(5, 7, 1, 'Cashback Offer', 'Amazon', 'GET150', 'Recharge Cashback');
 
 -- --------------------------------------------------------
 
@@ -154,13 +172,13 @@ ALTER TABLE `category`
 -- AUTO_INCREMENT for table `request`
 --
 ALTER TABLE `request`
-  MODIFY `rid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `rid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `rewards`
 --
 ALTER TABLE `rewards`
-  MODIFY `reid` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `reid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `users`
